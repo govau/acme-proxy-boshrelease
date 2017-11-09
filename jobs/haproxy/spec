@@ -1,0 +1,14 @@
+---
+name: haproxy
+
+templates:
+  pre-start.erb: bin/pre-start
+  haproxy_ctl.erb: bin/haproxy_ctl
+  haproxy.cfg: config/haproxy.cfg
+
+packages:
+  - haproxy
+  - awscli
+  - python-2.7
+
+properties: {}

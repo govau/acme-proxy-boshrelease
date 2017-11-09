@@ -1,0 +1,17 @@
+#!/bin/bash
+
+set -eu
+
+JOB_DIR=/var/vcap/jobs/haproxy/
+
+mkdir -p "${JOB_DIR}/chroot"
+
+EXTRA_FILES_DIR="${JOB_DIR}/config/extra"
+
+CERTS_DIR="${EXTRA_FILES_DIR}/certs"
+CONFIGS_DIR="${EXTRA_FILES_DIR}/configs"
+
+# "${JOB_DIR}/bin/reload_extra_files"
+
+mkdir -p "${CERTS_DIR}"
+mkdir -p "${CONFIGS_DIR}"

@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -eu
+
+# By default, a glob pattern like *.cfg gets passed literally if it doesn't match anything.
+# With nullglob, it expands to an empty list, which simplifies the invocation of haproxy.
+shopt -s nullglob
+
+RUN_DIR=/var/vcap/sys/run/haproxy
+LOG_DIR=/var/vcap/sys/log/haproxy
+JOB_DIR=/var/vcap/jobs/haproxy
+PID_FILE=${RUN_DIR}/pid
+HAPROXY=/var/vcap/packages/haproxy/bin/haproxy
+CONF_FILE=/var/vcap/jobs/haproxy/config/haproxy.cfg
+EXTRA_FILES_DIR="${JOB_DIR}/config/extra"
+
+# These can be used inside the HAProxy configs
+export HAPROXY_FILES_DIR="${EXTRA_FILES_DIR}"
+export HAPROXY_CERTS_DIR="${EXTRA_FILES_DIR}/certs"
+
+case $1 in
+
+  start)
+    mkdir -p "${RUN_DIR}" "${LOG_DIR}"
+    chown -R vcap:vcap "${RUN_DIR}" "${LOG_DIR}"
+
+	echo $$ > "${PID_FILE}"
+
+	exec "${HAPROXY}" -f "${CONF_FILE}" -p "${PID_FILE}" -- "${EXTRA_FILES_DIR}"/configs/*.cfg
+    ;;
+
+  stop)
+    xargs kill < "${PID_FILE}"
+    rm -f "${PID_FILE}"
+    ;;
+
+  reload)
+    "${HAPROXY}" -D -f "${CONF_FILE}" -p "${PID_FILE}" -sf $(<${PID_FILE}) -- "${EXTRA_FILES_DIR}"/configs/*.cfg
+    ;;
+
+  *)
+    echo "Usage: haproxy_ctl {start|stop|reload}"
+    ;;
+
+esac

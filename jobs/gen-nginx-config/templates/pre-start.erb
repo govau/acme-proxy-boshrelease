@@ -1,8 +1,0 @@
-#!/bin/bash
-
-set -eu
-
-JOB=gen-nginx-config
-CONF_DIR=/var/vcap/jobs/${JOB}/config
-
-/var/vcap/packages/${JOB}/bin/${JOB} -config $CONF_DIR/config.yml
