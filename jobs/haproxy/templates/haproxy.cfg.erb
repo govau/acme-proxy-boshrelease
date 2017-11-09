@@ -19,6 +19,6 @@ frontend http
 
 backend acme
     mode http
-    server acme0 localhost:80
+    server acme0 <%= p("acme.host") %>:<%= p("acme.port") %>
     timeout server 50000
     timeout connect 5000

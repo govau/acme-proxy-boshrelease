@@ -38,8 +38,12 @@ case $1 in
     "${HAPROXY}" -D -f "${CONF_FILE}" -p "${PID_FILE}" -sf $(<${PID_FILE}) -- "${EXTRA_FILES_DIR}"/configs/*.cfg
     ;;
 
+  test)
+    "${HAPROXY}" -f "${CONF_FILE}" -c -- "${EXTRA_FILES_DIR}"/configs/*.cfg
+	;;
+
   *)
-    echo "Usage: haproxy_ctl {start|stop|reload}"
+    echo "Usage: haproxy_ctl {start|stop|reload|test}"
     ;;
 
 esac

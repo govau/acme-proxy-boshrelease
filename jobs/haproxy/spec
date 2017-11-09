@@ -4,11 +4,24 @@ name: haproxy
 templates:
   pre-start.erb: bin/pre-start
   haproxy_ctl.erb: bin/haproxy_ctl
-  haproxy.cfg: config/haproxy.cfg
+  fetch_extra_files.erb: bin/fetch_extra_files
+  haproxy.cfg.erb: config/haproxy.cfg
 
 packages:
   - haproxy
   - awscli
   - python-2.7
 
-properties: {}
+properties:
+  acme:
+    host:
+      description: Host/IP of backend server receiving ACME challenges
+      example: acme.example.com
+    port:
+      description: Port used by ACME server
+      example: 8080
+      default: 80
+  config_bucket:
+    description: Name of S3 bucket that contains proxy configuration
+  default_config_object:
+    description: Key of object to load by default for configuration at startup
