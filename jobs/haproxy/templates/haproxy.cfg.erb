@@ -1,24 +1,24 @@
-# This is the base config that handles ACME protocol negotiations and redirects all other HTTP to HTTPS
+# This is the base config that proxies ACME protocol negotiations and redirects all other HTTP to HTTPS
 
 global
-    user vcap
-    group vcap
-    log /dev/log local0
-    tune.ssl.default-dh-param 2048
-    chroot /var/vcap/jobs/haproxy/chroot
+	user vcap
+	group vcap
+	log /dev/log local0
+	tune.ssl.default-dh-param 2048
+	chroot /var/vcap/jobs/haproxy/chroot
 
 frontend http
-    mode http
-    bind *:80
-    acl acme_challenge path_beg -i /.well-known/acme-challenge/
-    http-request redirect scheme https code 301 unless acme_challenge
-    use_backend acme if acme_challenge
-    log global
-    option httplog
-    timeout client 50000
+	mode http
+	bind <%= p("proxy.http_bind_host") %>:<%= p("proxy.http_bind_port") %>
+	acl acme_challenge path_beg -i /.well-known/acme-challenge/
+	http-request redirect scheme https code 301 unless acme_challenge
+	use_backend acme if acme_challenge
+	log global
+	option httplog
+	timeout client 50000
 
 backend acme
-    mode http
-    server acme0 <%= p("acme.host") %>:<%= p("acme.port") %>
-    timeout server 50000
-    timeout connect 5000
+	mode http
+	server acme0 <%= p("acme.host") %>:<%= p("acme.port") %>
+	timeout server 50000
+	timeout connect 5000
