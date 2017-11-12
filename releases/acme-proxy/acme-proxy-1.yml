@@ -1,0 +1,45 @@
+name: acme-proxy
+version: "1"
+commit_hash: 61eef2e
+uncommitted_changes: false
+jobs:
+- name: haproxy
+  version: 1892c5e23273f7b82df27d508633f917a2b07905
+  fingerprint: 1892c5e23273f7b82df27d508633f917a2b07905
+  sha1: 2ca1ccc0a82ee03b90d86ab5145abe5a5d03a4b0
+- name: le-responder
+  version: cdc82c88d700a2e85edde9aa15a4be6dab134197
+  fingerprint: cdc82c88d700a2e85edde9aa15a4be6dab134197
+  sha1: 49fe9fe43343d98058729f4dc2ac3fd6560563e8
+packages:
+- name: awscli
+  version: 2b2484eb10aed0717f7e54811b3fa9613d496bca
+  fingerprint: 2b2484eb10aed0717f7e54811b3fa9613d496bca
+  sha1: deb7730f12ab58781009082833b99e1d8f733b03
+  dependencies:
+  - python-2.7
+- name: golang-1.9-linux
+  version: 200a29b129a9078cb156be44c4a792ae24f42900
+  fingerprint: 200a29b129a9078cb156be44c4a792ae24f42900
+  sha1: bacfa6a162fa7085f95df7d43e911404a3644b01
+  dependencies: []
+- name: haproxy
+  version: c0e38429ecb24346fa0ae3b125edb283d1482136
+  fingerprint: c0e38429ecb24346fa0ae3b125edb283d1482136
+  sha1: 25e2418ebe16006758ad5d25d0e242e24dc51998
+  dependencies: []
+- name: le-responder
+  version: 4baa7e8bae22cccaf8066daea9763a59e0d00069
+  fingerprint: 4baa7e8bae22cccaf8066daea9763a59e0d00069
+  sha1: 062a6058a4264d4106a15c2cb510a6b35db9b4d0
+  dependencies:
+  - golang-1.9-linux
+- name: python-2.7
+  version: 7063c9f4e43bf49374c2f6cc6c2f74a5467f2298
+  fingerprint: 7063c9f4e43bf49374c2f6cc6c2f74a5467f2298
+  sha1: bd130315766a7641dbd20aa328d16f084cc17965
+  dependencies: []
+license:
+  version: 10b395e52546d70e842f9f583bbcc626b8bf321c
+  fingerprint: 10b395e52546d70e842f9f583bbcc626b8bf321c
+  sha1: 0881b46057a6db068c5ec128afeabf9e00770963
