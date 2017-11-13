@@ -108,7 +108,7 @@
           outputs:
             s3:
             - bucket: ((leresponder_output_bucket))
-              object: certs.tgz
+              object: le-responder/current-certificates.tgz
               access_key: ((leresponder_output_iam_key))
               access_secret: ((leresponder_output_iam_secret))
 

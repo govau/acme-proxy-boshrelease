@@ -196,6 +196,9 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 
 	sourceToUse := dc.Bootstrap.Source
 
+	// Note that if a certificate already exists, we won't try to renew it unless there
+	// is already a certificate that exists. In that manner new certs won't attempt to be renewed
+	// until we're ready. (e.g. while waiting for a DNS response)
 	if chc != nil {
 		sourceToUse = chc.Source
 

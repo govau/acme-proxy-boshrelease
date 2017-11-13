@@ -99,6 +99,7 @@ func createTarball(certs []*credhubCert) ([]byte, error) {
 			Mode:     0600,
 			Size:     int64(len(certBytes)),
 			Typeflag: tar.TypeReg,
+			ModTime:  cert.dateCreated,
 		})
 		if err != nil {
 			return nil, err
