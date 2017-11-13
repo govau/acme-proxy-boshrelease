@@ -13,23 +13,21 @@ packages:
   - python-2.7
 
 properties:
-  proxy:
-    http_bind_host:
-      description: Host/IP for proxy to listen on for unencrypted traffic
-      example: 127.0.0.1
-      default: "*"
-    http_bind_port:
-      description: Port for proxy to listen on for unencrypted traffic
-      example: 8080
-      default: 80
-  acme:
-    host:
-      description: Host/IP of backend server receiving ACME challenges
-      example: acme.example.com
-    port:
-      description: Port used by ACME server
-      example: 8080
-      default: 80
+  proxy.http_bind_host:
+    description: Host/IP for proxy to listen on for unencrypted traffic
+    example: 127.0.0.1
+    default: "*"
+  proxy.http_bind_port:
+    description: Port for proxy to listen on for unencrypted traffic
+    example: 8080
+    default: 80
+  acme.host:
+    description: Host/IP of backend server receiving ACME challenges
+    example: acme.example.com
+  acme.port:
+    description: Port used by ACME server
+    example: 8080
+    default: 80
   config_bucket:
     description: Name of S3 bucket that contains proxy configuration
   default_config_object:
