@@ -59,9 +59,10 @@ func (b *bucket) Put(data []byte) error {
 	}
 
 	result, err := s3manager.NewUploader(b.awsSession).Upload(&s3manager.UploadInput{
-		Bucket: aws.String(b.Bucket),
-		Key:    aws.String(b.Object),
-		Body:   bytes.NewReader(data),
+		Bucket:               aws.String(b.Bucket),
+		Key:                  aws.String(b.Object),
+		Body:                 bytes.NewReader(data),
+		ServerSideEncryption: aws.String("AES256"),
 	})
 	if err != nil {
 		return err
