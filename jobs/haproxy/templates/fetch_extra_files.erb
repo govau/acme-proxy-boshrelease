@@ -10,14 +10,14 @@ set -e
 source /var/vcap/packages/awscli/bosh/runtime.env
 set -u
 
-CONFIG_DIR=/var/vcap/jobs/haproxy/
+CONFIG_DIR=/var/vcap/jobs/haproxy/config
 KEY="$1"
 
 WORK_DIR="$(mktemp -d)"
 trap 'rm -rf "${WORK_DIR}"' EXIT
 cd "${WORK_DIR}"
 
-aws s3api get-object --bucket '<%= p('config_bucket') %>' --key "${KEY}" "${2:+--version-id $2}" config.tgz
+aws s3api get-object --bucket '<%= p('config_bucket') %>' --key "${KEY}" ${2:+--version-id "$2"} config.tgz
 tar xf config.tgz
 
 BACKUP_DIR="${CONFIG_DIR}/extra-backup-$(date -Iseconds)"

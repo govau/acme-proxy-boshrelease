@@ -10,6 +10,8 @@ EXTRA_FILES_DIR="${JOB_DIR}/config/extra"
 CERTS_DIR="${EXTRA_FILES_DIR}/certs"
 CONFIGS_DIR="${EXTRA_FILES_DIR}/configs"
 
+mkdir -p "${EXTRA_FILES_DIR}"
+
 <% if_p('default_config_object') do |default_config_object| %>
 "${JOB_DIR}/bin/fetch_extra_files" '<%= default_config_object %>'
 <% end %>
