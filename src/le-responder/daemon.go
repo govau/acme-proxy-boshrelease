@@ -146,13 +146,20 @@ func (dc *daemonConf) RunForever() {
 	// Periodic scan loop, this will ping the update request queue
 	go func() {
 		for {
+			nextSleepSeconds := time.Duration(dc.Period)
+
 			log.Println("starting periodic scan...")
 			err := dc.periodicScan()
 			if err != nil {
 				log.Println("error in periodic scan, ignoring:", err)
+				if credhub.IsCommsRelatedError(err) {
+					log.Println("looks like a comms related issue, we'll reduce our sleep time")
+					nextSleepSeconds = 15
+				}
 			}
-			log.Println("finished, sleeping...")
-			time.Sleep(time.Second * time.Duration(dc.Period))
+
+			log.Println("finished, sleeping for %d...", nextSleepSeconds)
+			time.Sleep(time.Second * nextSleepSeconds)
 		}
 	}()
 
@@ -191,13 +198,13 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 	needNew := false
 
 	chc, err := dc.storage.LoadPath(path)
-	switch err {
-	case nil:
-		// all good, continue
-	case credhub.ErrCredNotFound:
-		needNew = true
-	default:
-		return err
+	if err != nil {
+		if credhub.IsNotFoundError(err) {
+			needNew = true
+			chc = nil
+		} else {
+			return err
+		}
 	}
 
 	sourceToUse := dc.Bootstrap.Source
@@ -372,7 +379,17 @@ func (dc *daemonConf) RenewCertNow(hostname, cs string) error {
 func (dc *daemonConf) periodicScan() error {
 	var retErr error
 
-	// First handle fixed hosts
+	// First, fetch the list of certs.
+	// We do this first to ensure our storage layer is up before we try to communicate with
+	// any of our CA sources
+
+	// Next fetch all certs, and renew
+	certsToDealWith, err := dc.storage.FetchCerts()
+	if err != nil {
+		return err
+	}
+
+	// Now ignore it, and handle our fixed hosts
 	for _, fh := range dc.fixedHosts {
 		err := dc.renewCertIfNeeded(fh)
 		if err != nil {
@@ -381,11 +398,7 @@ func (dc *daemonConf) periodicScan() error {
 		}
 	}
 
-	// Next fetch all certs, and renew
-	certsToDealWith, err := dc.storage.FetchCerts()
-	if err != nil {
-		return err
-	}
+	// And now handle the rest.
 	for _, cert := range certsToDealWith {
 		hn := hostFromPath(cert.path)
 		if !dc.isFixedHost(hn) { // we just did these above
