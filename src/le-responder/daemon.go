@@ -45,8 +45,8 @@ type daemonConf struct {
 		Source string `yaml:"source"`
 	} `yaml:"bootstrap"`
 
-	fixedHosts []string
-	storage    certStorage
+	ourHost string
+	storage certStorage
 
 	certFactories map[string]certSource
 	sources       []string
@@ -87,7 +87,7 @@ func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage
 		return errors.New("admin external url must be specified")
 	}
 
-	dc.fixedHosts = []string{hn}
+	dc.ourHost = hn
 
 	dc.certFactories = make(map[string]certSource)
 	dc.sources = nil
@@ -202,6 +202,10 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 	if chc != nil {
 		sourceToUse = chc.Source
 
+		if chc.Challenge != nil {
+			return errors.New("challenge not empty, we will not try to auto renew, please use console to do manually")
+		}
+
 		block, _ := pem.Decode([]byte(chc.Certificate))
 		if block == nil {
 			return errors.New("no cert found in pem, perhaps this cert hasn't been manually issued yet?")
@@ -213,6 +217,10 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 		pc, err := x509.ParseCertificate(block.Bytes)
 		if err != nil {
 			return err
+		}
+
+		if pc.NotAfter.Before(time.Now()) {
+			return errors.New("cert already expired, we won't try to auto-renew. do so manually via console")
 		}
 
 		if pc.NotAfter.Before(time.Now().Add(24 * time.Hour * time.Duration(dc.DaysBefore))) {
@@ -241,12 +249,7 @@ func (dc *daemonConf) CanDelete(hostname string) bool {
 }
 
 func (dc *daemonConf) isFixedHost(hostname string) bool {
-	for _, fh := range dc.fixedHosts {
-		if hostname == fh {
-			return true
-		}
-	}
-	return false
+	return hostname == dc.ourHost
 }
 
 func (dc *daemonConf) StartManualChallenge(hostname string) error {
@@ -359,7 +362,7 @@ func (dc *daemonConf) periodicScan() error {
 	var retErr error
 
 	// First handle fixed hosts
-	for _, fh := range dc.fixedHosts {
+	for _, fh := range []string{dc.ourHost} {
 		err := dc.renewCertIfNeeded(fh)
 		if err != nil {
 			log.Println("error, continuing with others:", err)
