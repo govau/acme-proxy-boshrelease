@@ -226,10 +226,6 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 		if pc.NotAfter.Before(time.Now().Add(24 * time.Hour * time.Duration(dc.DaysBefore))) {
 			needNew = true
 		}
-
-		if chc.NeedsNew {
-			needNew = true
-		}
 	}
 
 	if !needNew {

@@ -225,7 +225,6 @@ func (as *adminServer) update(vars map[string]string, liu *uaa.LoggedInUser, w h
 		}
 
 		existing.Source = source
-		existing.NeedsNew = true
 
 		err = as.storage.SavePath(path, existing)
 		if err != nil {
