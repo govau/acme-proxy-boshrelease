@@ -83,8 +83,8 @@ func (dc *daemonConf) Init(ourHostname string, sm sourceMap, storage certStorage
 
 	dc.ourHN = ourHostname
 	dc.fixedHosts = []string{
+		"proxy-bootstrap", // do first, in case we take longer
 		ourHostname,
-		"proxy-bootstrap",
 	}
 
 	dc.certFactories = make(map[string]certSource)
