@@ -1,5 +1,5 @@
 hash: 6efe3e3c258a8be161a8ae205d01034fdf7e7ebc89961443c03b6ed480351a05
-updated: 2017-11-15T11:52:36.523702633+11:00
+updated: 2017-11-16T13:49:59.554545677+11:00
 imports:
 - name: github.com/aws/aws-sdk-go
   version: beafda230a3568820b4de838683c0efd3c1b9af2
@@ -46,7 +46,7 @@ imports:
 - name: github.com/gorilla/sessions
   version: ca9ada44574153444b00d3fd9c8559e4cc95f896
 - name: github.com/govau/cf-common
-  version: 117fe74bb828a82439c28e9be6f323a765239252
+  version: 69b93f233fa140d2670b08ca291d2f403a0ada65
   subpackages:
   - credhub
   - uaa
