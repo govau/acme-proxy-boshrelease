@@ -145,20 +145,24 @@ func (dc *daemonConf) updateObservers() error {
 func (dc *daemonConf) RunForever() {
 	// Periodic scan loop, this will ping the update request queue
 	go func() {
+		bootstrapped := false
 		for {
 			nextSleepSeconds := time.Duration(dc.Period)
 
 			log.Println("starting periodic scan...")
 			err := dc.periodicScan()
-			if err != nil {
+			if err == nil {
+				log.Println("finished successfully")
+				bootstrapped = true
+			} else {
 				log.Println("error in periodic scan, ignoring:", err)
-				if credhub.IsCommsRelatedError(err) {
+				if credhub.IsCommsRelatedError(err) && !bootstrapped {
 					log.Println("looks like a comms related issue, we'll reduce our sleep time")
 					nextSleepSeconds = 15
 				}
 			}
 
-			log.Println("finished, sleeping for %d...", nextSleepSeconds)
+			log.Printf("sleeping for %d...\n", nextSleepSeconds)
 			time.Sleep(time.Second * nextSleepSeconds)
 		}
 	}()
