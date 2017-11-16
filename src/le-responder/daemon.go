@@ -9,7 +9,6 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"net/url"
 	"sort"
 	"time"
 
@@ -71,7 +70,7 @@ func (dc *daemonConf) SourceCanManual(cs string) bool {
 	return cf.SupportsManual()
 }
 
-func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage, observers []certObserver, responder responder) error {
+func (dc *daemonConf) Init(ourHostname string, sm sourceMap, storage certStorage, observers []certObserver, responder responder) error {
 	dc.updateRequests = make(chan bool, 1000)
 
 	if dc.Period == 0 {
@@ -81,17 +80,7 @@ func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage
 		return errors.New("days before must be specified and non-zero. should be in days")
 	}
 
-	u, err := url.Parse(extAdminURL)
-	if err != nil {
-		return err
-	}
-
-	hn := u.Hostname()
-	if hn == "" {
-		return errors.New("admin external url must be specified")
-	}
-
-	dc.ourHost = hn
+	dc.ourHost = ourHostname
 
 	dc.certFactories = make(map[string]certSource)
 	dc.sources = nil
@@ -106,7 +95,7 @@ func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage
 				PrivateKey:      val.PrivateKey,
 				responderServer: responder,
 			}
-			err = v.Init()
+			err := v.Init()
 			if err != nil {
 				return err
 			}
