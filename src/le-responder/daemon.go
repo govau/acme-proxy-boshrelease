@@ -29,6 +29,10 @@ type certSource interface {
 	SupportsManual() bool
 }
 
+type shouldShipOracle interface {
+	ShipToProxy(hostname string) bool
+}
+
 type certRenewer interface {
 	RenewCertNow(hostname, cs string) error
 	CanDelete(hostname string) bool
@@ -50,7 +54,7 @@ type daemonConf struct {
 
 	certFactories map[string]certSource
 	sources       []string
-	observer      certObserver
+	observers     []certObserver
 
 	updateRequests chan bool
 }
@@ -67,7 +71,7 @@ func (dc *daemonConf) SourceCanManual(cs string) bool {
 	return cf.SupportsManual()
 }
 
-func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage, observer certObserver, responder responder) error {
+func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage, observers []certObserver, responder responder) error {
 	dc.updateRequests = make(chan bool, 1000)
 
 	if dc.Period == 0 {
@@ -123,7 +127,7 @@ func (dc *daemonConf) Init(extAdminURL string, sm sourceMap, storage certStorage
 
 	sort.StringSlice(dc.sources).Sort()
 
-	dc.observer = observer
+	dc.observers = observers
 
 	return nil
 }
@@ -133,7 +137,15 @@ func (dc *daemonConf) updateObservers() error {
 	if err != nil {
 		return err
 	}
-	return dc.observer.CertsAreUpdated(certs)
+	var retErr error
+	for _, ob := range dc.observers {
+		err = ob.CertsAreUpdated(certs)
+		if err != nil {
+			log.Println("erroring updating cert observer, will continue to next but still return failed:", err)
+			retErr = err
+		}
+	}
+	return retErr
 }
 
 func (dc *daemonConf) RunForever() {
@@ -241,6 +253,10 @@ func (dc *daemonConf) renewCertIfNeeded(hostname string) error {
 }
 
 func (dc *daemonConf) CanDelete(hostname string) bool {
+	return !dc.isFixedHost(hostname)
+}
+
+func (dc *daemonConf) ShipToProxy(hostname string) bool {
 	return !dc.isFixedHost(hostname)
 }
 

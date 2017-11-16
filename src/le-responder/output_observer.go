@@ -77,15 +77,26 @@ func (b *bucket) Put(data []byte) error {
 
 type outputObserver struct {
 	S3 []*bucket `yaml:"s3"`
+
+	ssOracle shouldShipOracle
 }
 
-func createTarball(certs []*credhubCert) ([]byte, error) {
+func (n *outputObserver) Init(ssOracle shouldShipOracle) error {
+	n.ssOracle = ssOracle
+	return nil
+}
+
+func (n *outputObserver) createTarball(certs []*credhubCert) ([]byte, error) {
 	buffer := &bytes.Buffer{}
 	gzipWriter := gzip.NewWriter(buffer)
 	tarWriter := tar.NewWriter(gzipWriter)
 
 	for _, cert := range certs {
 		hn := hostFromPath(cert.path)
+		if !n.ssOracle.ShipToProxy(hn) {
+			// skip
+			continue
+		}
 		he := hex.EncodeToString([]byte(hn))
 
 		certBytes := []byte(strings.Join([]string{
@@ -124,7 +135,7 @@ func createTarball(certs []*credhubCert) ([]byte, error) {
 }
 
 func (n *outputObserver) CertsAreUpdated(certs []*credhubCert) error {
-	tb, err := createTarball(certs)
+	tb, err := n.createTarball(certs)
 	if err != nil {
 		return err
 	}
