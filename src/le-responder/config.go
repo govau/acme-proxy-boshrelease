@@ -57,7 +57,15 @@ func newConf(configPath string) (*config, error) {
 		CredHub: &c.Data.CredHub,
 	}
 
-	err = c.Daemon.Init(c.Servers.Admin.ExternalURL, c.Sources, ccs, &c.Output, &c.Servers.ACME)
+	err = c.Output.Init(&c.Daemon)
+	if err != nil {
+		return nil, err
+	}
+
+	err = c.Daemon.Init(c.Servers.Admin.ExternalURL, c.Sources, ccs, []certObserver{
+		&c.Servers.Admin,
+		&c.Output,
+	}, &c.Servers.ACME)
 	if err != nil {
 		return nil, err
 	}

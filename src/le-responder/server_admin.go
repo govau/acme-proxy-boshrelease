@@ -44,6 +44,11 @@ func (as *adminServer) Init(storage certStorage, certRenewer certRenewer) error 
 	return nil
 }
 
+func (as *adminServer) CertsAreUpdated(certs []*credhubCert) error {
+	// TODO
+	return nil
+}
+
 func (as *adminServer) RunForever() {
 	// Start admin server, we care less if this fails, so we'll get the process on the responder
 	err := http.ListenAndServe(fmt.Sprintf(":%d", as.Port), (&uaa.LoginHandler{
