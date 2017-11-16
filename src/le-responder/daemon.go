@@ -48,8 +48,9 @@ type daemonConf struct {
 		Source string `yaml:"source"`
 	} `yaml:"bootstrap"`
 
-	ourHost string
-	storage certStorage
+	fixedHosts []string
+	ourHN      string
+	storage    certStorage
 
 	certFactories map[string]certSource
 	sources       []string
@@ -80,7 +81,11 @@ func (dc *daemonConf) Init(ourHostname string, sm sourceMap, storage certStorage
 		return errors.New("days before must be specified and non-zero. should be in days")
 	}
 
-	dc.ourHost = ourHostname
+	dc.ourHN = ourHostname
+	dc.fixedHosts = []string{
+		ourHostname,
+		"proxy-bootstrap",
+	}
 
 	dc.certFactories = make(map[string]certSource)
 	dc.sources = nil
@@ -246,11 +251,16 @@ func (dc *daemonConf) CanDelete(hostname string) bool {
 }
 
 func (dc *daemonConf) ShipToProxy(hostname string) bool {
-	return !dc.isFixedHost(hostname)
+	return hostname != dc.ourHN
 }
 
 func (dc *daemonConf) isFixedHost(hostname string) bool {
-	return hostname == dc.ourHost
+	for _, hn := range dc.fixedHosts {
+		if hn == hostname {
+			return true
+		}
+	}
+	return false
 }
 
 func (dc *daemonConf) StartManualChallenge(hostname string) error {
@@ -363,7 +373,7 @@ func (dc *daemonConf) periodicScan() error {
 	var retErr error
 
 	// First handle fixed hosts
-	for _, fh := range []string{dc.ourHost} {
+	for _, fh := range dc.fixedHosts {
 		err := dc.renewCertIfNeeded(fh)
 		if err != nil {
 			log.Println("error, continuing with others:", err)
