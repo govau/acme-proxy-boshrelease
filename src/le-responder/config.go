@@ -62,7 +62,7 @@ func newConf(configPath string) (*config, error) {
 		return nil, err
 	}
 
-	err = c.Servers.ACME.Init()
+	err = c.Servers.ACME.Init(c.Servers.Admin.ExternalURL)
 	if err != nil {
 		return nil, err
 	}
