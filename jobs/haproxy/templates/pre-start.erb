@@ -13,7 +13,9 @@ CONFIGS_DIR="${EXTRA_FILES_DIR}/configs"
 mkdir -p "${EXTRA_FILES_DIR}"
 
 <% if_p('default_config_object') do |default_config_object| %>
-"${JOB_DIR}/bin/fetch_extra_files" '<%= default_config_object %>'
+# Errors are ignored for simpler deployment.
+# Health checking on the load balancer should detect whether the server is ready for traffic.
+"${JOB_DIR}/bin/fetch_extra_files" '<%= default_config_object %>' || echo "$(date) Warning: Failed to load default config '<%= default_config_object %>' (ignoring)" >&2
 <% end %>
 
 mkdir -p "${CERTS_DIR}"
