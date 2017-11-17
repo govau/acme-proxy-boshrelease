@@ -6,6 +6,7 @@ templates:
   haproxy_ctl.erb: bin/haproxy_ctl
   fetch_extra_files.erb: bin/fetch_extra_files
   haproxy.cfg.erb: config/haproxy.cfg
+  update: bin/update
 
 packages:
   - haproxy
@@ -21,13 +22,9 @@ properties:
     description: Port for proxy to listen on for unencrypted traffic
     example: 8080
     default: 80
-  acme.host:
-    description: Host/IP of backend server receiving ACME challenges
+  acme.address:
+    description: Address of server receiving ACME challenges
     example: acme.example.com
-  acme.port:
-    description: Port used by ACME server
-    example: 8080
-    default: 80
   config_bucket:
     description: Name of S3 bucket that contains proxy configuration
   default_config_object:
