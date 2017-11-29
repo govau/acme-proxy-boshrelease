@@ -97,6 +97,11 @@ func (n *outputObserver) createTarball(certs []*credhubCert) ([]byte, error) {
 			// skip
 			continue
 		}
+		if strings.TrimSpace(cert.Certificate) == "" {
+			// not issued yet, skip
+			continue
+		}
+
 		he := hex.EncodeToString([]byte(hn))
 
 		certBytes := []byte(strings.Join([]string{
